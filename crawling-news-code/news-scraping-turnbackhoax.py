@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import json
 import time
 
 headers = {
@@ -24,7 +25,7 @@ def parse_article(article_url):
         soup = get_soup(article_url)
         title = soup.find(class_="entry-title").get_text()
         date = soup.find(class_="entry-meta-date updated").find("a").get_text()
-        content_paragraphs = soup.find(class_="entry-thumbnail").find_all("p")
+        content_paragraphs = soup.find(class_="entry-content mh-clearfix").find_all("p")
         content = "\n".join(p.get_text() for p in content_paragraphs)
         return {
             "title": title,
@@ -66,11 +67,11 @@ def get_all_articles(base_url, max_pages):
 
 def main(max_pages):
     articles = get_all_articles(base_url, max_pages)
-    df = pd.DataFrame(articles)
-    df.to_csv("hoax_articles.csv", index=False)
-    print("Data has been saved to hoax_articles.csv")
+    with open("crawling-news-dataset/hoax_articles301-600.json", "w", encoding='utf-8') as f:
+        json.dump(articles, f, ensure_ascii=False, indent=4)
+    print("Data has been saved to hoax_articles201-300.json")
 
 if __name__ == "__main__":
-    max_pages = 100  # Set the number of pages you want to crawl
-    base_url = "https://turnbackhoax.id/page/51/"
+    max_pages = 300  # Set the number of pages you want to crawl
+    base_url = "https://turnbackhoax.id/page/301/"
     main(max_pages)
